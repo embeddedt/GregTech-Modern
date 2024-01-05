@@ -34,6 +34,10 @@ import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
 import com.gregtechceu.gtceu.client.TooltipHelper;
 import com.gregtechceu.gtceu.client.renderer.machine.*;
 import com.gregtechceu.gtceu.common.block.BoilerFireboxType;
+import com.gregtechceu.gtceu.common.data.machines.GCyMMachines;
+import com.gregtechceu.gtceu.common.data.machines.GTAEMachines;
+import com.gregtechceu.gtceu.common.data.machines.GTCreateMachines;
+import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.electric.*;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.*;
 import com.gregtechceu.gtceu.common.machine.multiblock.generator.LargeCombustionEngineMachine;
@@ -52,7 +56,6 @@ import com.gregtechceu.gtceu.common.pipelike.fluidpipe.longdistance.LDFluidEndpo
 import com.gregtechceu.gtceu.common.pipelike.item.longdistance.LDItemEndpointMachine;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
-import com.gregtechceu.gtceu.integration.ae2.GTAEMachines;
 import com.gregtechceu.gtceu.integration.kjs.GTRegistryObjectBuilderTypes;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.utils.GTUtil;
@@ -789,30 +792,6 @@ public class GTMachines {
     public static final MachineDefinition[] LASER_OUTPUT_HATCH_1024 = registerLaserHatch(IO.OUT, 1024, PartAbility.OUTPUT_LASER);
     public static final MachineDefinition[] LASER_INPUT_HATCH_4096 = registerLaserHatch(IO.IN, 4096, PartAbility.INPUT_LASER);
     public static final MachineDefinition[] LASER_OUTPUT_HATCH_4096 = registerLaserHatch(IO.OUT, 4096, PartAbility.OUTPUT_LASER);
-
-    public static final MachineDefinition OBJECT_HOLDER = REGISTRATE.machine("object_holder", ObjectHolderMachine::new)
-            .langValue("Object Holder")
-            .tier(ZPM)
-            .rotationState(RotationState.ALL)
-            .abilities(PartAbility.OBJECT_HOLDER)
-            .renderer(() -> new OverlayTieredActiveMachineRenderer(ZPM, GTCEu.id("block/machine/part/object_holder"), GTCEu.id("block/machine/part/object_holder_active")))
-            .register();
-
-    public static final MachineDefinition COMPUTATION_HATCH_TRANSMITTER = REGISTRATE.machine("computation_transmitter_hatch", (holder) -> new OpticalComputationHatchMachine(holder, true))
-            .langValue("Computation Transmitter Hatch")
-            .tier(ZPM)
-            .rotationState(RotationState.ALL)
-            .abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION)
-            .overlayTieredHullRenderer("optical_data_access_hatch")
-            .register();
-
-    public static final MachineDefinition COMPUTATION_HATCH_RECEIVER = REGISTRATE.machine("computation_receiver_hatch", (holder) -> new OpticalComputationHatchMachine(holder, false))
-            .langValue("Computation Receiver Hatch")
-            .tier(ZPM)
-            .rotationState(RotationState.ALL)
-            .abilities(PartAbility.COMPUTATION_DATA_RECEPTION)
-            .overlayTieredHullRenderer("optical_data_access_hatch")
-            .register();
 
     //////////////////////////////////////
     //*******     Multiblock     *******//
@@ -1588,55 +1567,6 @@ public class GTMachines {
                     .register(),
             IV, LuV) : null;
 
-    public static final MultiblockMachineDefinition RESEARCH_STATION = REGISTRATE.multiblock("research_station", ResearchStationMachine::new)
-            .rotationState(RotationState.NON_Y_AXIS)
-            .recipeType(GTRecipeTypes.RESEARCH_STATION_RECIPES)
-            .appearanceBlock(COMPUTER_CASING)
-            .tooltips(LangHandler.getMultiLang("gtceu.machine.research_station.tooltip").toArray(Component[]::new))
-            .pattern(defintion -> FactoryBlockPattern.start()
-                    .aisle("XXX", "VVV", "PPP", "PPP", "PPP", "VVV", "XXX")
-                    .aisle("XXX", "VAV", "AAA", "AAA", "AAA", "VAV", "XXX")
-                    .aisle("XXX", "VAV", "XAX", "XSX", "XAX", "VAV", "XXX")
-                    .aisle("XXX", "XAX", "---", "---", "---", "XAX", "XXX")
-                    .aisle(" X ", "XAX", "---", "---", "---", "XAX", " X ")
-                    .aisle(" X ", "XAX", "-A-", "-H-", "-A-", "XAX", " X ")
-                    .aisle("   ", "XXX", "---", "---", "---", "XXX", "   ")
-                    .where('S', controller(blocks(defintion.getBlock())))
-                    .where('X', blocks(COMPUTER_CASING.get()))
-                    .where(' ', any())
-                    .where('-', air())
-                    .where('V', blocks(COMPUTER_HEAT_VENT.get()))
-                    .where('A', blocks(ADVANCED_COMPUTER_CASING.get()))
-                    .where('P', blocks(COMPUTER_CASING.get())
-                            .or(abilities(PartAbility.INPUT_ENERGY).setMinGlobalLimited(1))
-                            .or(abilities(PartAbility.MAINTENANCE)
-                                    .setMinGlobalLimited(ConfigHolder.INSTANCE.machines.enableMaintenance ? 1 : 0).setMaxGlobalLimited(1))
-                            .or(abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setExactLimit(1)))
-                    .where('H', abilities(PartAbility.OBJECT_HOLDER))
-                    .build())
-            .shapeInfo(definition -> MultiblockShapeInfo.builder()
-                    .aisle("XXX", "VVV", "POP", "PEP", "PMP", "VVV", "XXX")
-                    .aisle("XXX", "VAV", "AAA", "AAA", "AAA", "VAV", "XXX")
-                    .aisle("XXX", "VAV", "XAX", "XSX", "XAX", "VAV", "XXX")
-                    .aisle("XXX", "XAX", "---", "---", "---", "XAX", "XXX")
-                    .aisle("-X-", "XAX", "---", "---", "---", "XAX", "-X-")
-                    .aisle("-X-", "XAX", "-A-", "-H-", "-A-", "XAX", "-X-")
-                    .aisle("---", "XXX", "---", "---", "---", "XXX", "---")
-                    .where('S', GTMachines.RESEARCH_STATION, Direction.SOUTH)
-                    .where('X', COMPUTER_CASING.get())
-                    .where('-', Blocks.AIR)
-                    .where('V', COMPUTER_HEAT_VENT.get())
-                    .where('A', ADVANCED_COMPUTER_CASING.get())
-                    .where('P', COMPUTER_CASING.get())
-                    .where('O', GTMachines.COMPUTATION_HATCH_RECEIVER, Direction.NORTH)
-                    .where('E', GTMachines.ENERGY_INPUT_HATCH[GTValues.LuV], Direction.NORTH)
-                    .where('M', ConfigHolder.INSTANCE.machines.enableMaintenance ? GTMachines.MAINTENANCE_HATCH.getBlock().defaultBlockState().setValue(GTMachines.MAINTENANCE_HATCH.get().getRotationState().property, Direction.NORTH) : COMPUTER_CASING.getDefaultState())
-                    .where('H', GTMachines.OBJECT_HOLDER, Direction.NORTH)
-                    .build())
-            .sidedWorkableCasingRenderer("block/casings/hpca/advanced_computer_casing",
-                    GTCEu.id("block/multiblock/research_station"), false)
-            .register();
-
     public static final MultiblockMachineDefinition ACTIVE_TRANSFORMER = REGISTRATE.multiblock("active_transformer", ActiveTransformerMachine::new)
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(GTRecipeTypes.DUMMY_RECIPES)
@@ -2063,6 +1993,8 @@ public class GTMachines {
 
     public static void init() {
         GCyMMachines.init();
+        GTResearchMachines.init();
+
         if (GTCEu.isCreateLoaded()) {
             GTCreateMachines.init();
         }
